@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Piattaforma intelligente per cataloghi ricambi multi-categoria e preventivi stampabili.")
+st.markdown("Piattaforma intelligente con riconoscimento veicolo avanzato e preventivi stampabili.")
 
 # Sidebar per la navigazione tra i moduli
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica Acustica AI", "Catalogo e Preventivi B2B"], key="menu_principale_app")
@@ -30,20 +30,73 @@ if menu == "Diagnostica Acustica AI":
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    # --- 1. DECODER TARGA / TELAIO ---
+    # --- 1. DECODER TARGA / TELAIO AVANZATO ---
     targa_input = st.text_input("Inserisci Targa o Numero Telaio (VIN)", "FL655GS", key="input_targa_vin").upper().strip()
     
+    # Database esteso con tutte le specifiche tecniche del veicolo
     database_targhe = {
-        "AB123CD": {"modello": "Volkswagen Golf VII 2.0 TDI", "anno": 2018},
-        "XY987WZ": {"modello": "Fiat Panda 1.2 Easy", "anno": 2020},
-        "JK456LM": {"modello": "BMW Serie 3 320d", "anno": 2017},
-        "ZZ999ZZ": {"modello": "Audi A4 Avant 2.0 TDI", "anno": 2019},
-        "FR444ON": {"modello": "Ford Focus 1.5 EcoBlue", "anno": 2021},
-        "FL655GS": {"modello": "Veicolo Personalizzato", "anno": 2022}
+        "AB123CD": {
+            "modello": "Volkswagen Golf VII 2.0 TDI", 
+            "anno": 2018, 
+            "alimentazione": "Diesel", 
+            "cilindrata": "1968 cc", 
+            "potenza": "150 CV (110 kW)",
+            "vin": "WVWZZZAUZJW123456"
+        },
+        "XY987WZ": {
+            "modello": "Fiat Panda 1.2 Easy", 
+            "anno": 2020, 
+            "alimentazione": "Benzina", 
+            "cilindrata": "1242 cc", 
+            "potenza": "69 CV (51 kW)",
+            "vin": "ZFA31200000789012"
+        },
+        "JK456LM": {
+            "modello": "BMW Serie 3 320d", 
+            "anno": 2017, 
+            "alimentazione": "Diesel", 
+            "cilindrata": "1995 cc", 
+            "potenza": "190 CV (140 kW)",
+            "vin": "WBA8U110X0K345678"
+        },
+        "ZZ999ZZ": {
+            "modello": "Audi A4 Avant 2.0 TDI", 
+            "anno": 2019, 
+            "alimentazione": "Diesel", 
+            "cilindrata": "1968 cc", 
+            "potenza": "163 CV (120 kW)",
+            "vin": "WAUZZZF40KA901234"
+        },
+        "FR444ON": {
+            "modello": "Ford Focus 1.5 EcoBlue", 
+            "anno": 2021, 
+            "alimentazione": "Diesel", 
+            "cilindrata": "1499 cc", 
+            "potenza": "120 CV (88 kW)",
+            "vin": "WF0XXGBWHPME56789"
+        }
     }
     
-    veicolo_info = database_targhe.get(targa_input, {"modello": "Veicolo Personalizzato", "anno": 2022})
-    st.info(f"🔍 Veicolo Identificato: **{veicolo_info['modello']}** — Anno: **{veicolo_info['anno']}** — Targa: **{targa_input}**")
+    # Se la targa non è in lista, genera una scheda tecnica dinamica dettagliata basata sull'input
+    veicolo_info = database_targhe.get(targa_input, {
+        "modello": f"Veicolo Standard ({targa_input})", 
+        "anno": 2022, 
+        "alimentazione": "Benzina / ibrido", 
+        "cilindrata": "1598 cc", 
+        "potenza": "115 CV (85 kW)",
+        "vin": f"VIN-{targa_input}-GEN99"
+    })
+    
+    # --- SCHEDA DATI AUTO A SCHERMO ---
+    st.markdown(f"""
+    <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
+        <h3 style="color: #00E5FF; margin-top: 0;">🔍 Scheda Tecnica Veicolo Riconosciuto</h3>
+        <p style="margin: 4px 0;"><b>Modello:</b> {veicolo_info['modello']}</p>
+        <p style="margin: 4px 0;"><b>Anno Immatricolazione:</b> {veicolo_info['anno']}</p>
+        <p style="margin: 4px 0;"><b>Alimentazione:</b> {veicolo_info['alimentazione']} &nbsp;|&nbsp; <b>Cilindrata:</b> {veicolo_info['cilindrata']} &nbsp;|&nbsp; <b>Potenza:</b> {veicolo_info['potenza']}</p>
+        <p style="margin: 4px 0;"><b>Targa:</b> {targa_input} &nbsp;|&nbsp; <b>Codice Telaio (VIN):</b> <code>{veicolo_info['vin']}</code></p>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -162,6 +215,10 @@ elif menu == "Catalogo e Preventivi B2B":
                 "targa": targa_input,
                 "modello": veicolo_info["modello"],
                 "anno": veicolo_info["anno"],
+                "alimentazione": veicolo_info["alimentazione"],
+                "cilindrata": veicolo_info["cilindrata"],
+                "potenza": veicolo_info["potenza"],
+                "vin": veicolo_info["vin"],
                 "elementi": dettagli_calcolati,
                 "tot_ricambi": tot_ricambi_agg,
                 "tot_ore": tot_ore,
@@ -175,10 +232,10 @@ elif menu == "Catalogo e Preventivi B2B":
         st.markdown("---")
         
         st.markdown(f"### 📄 Foglio Preventivo Ufficiale IAmecc")
-        st.write(f"**Veicolo:** {p['modello']} — **Anno:** {p['anno']} — **Targa:** {p['targa']}")
+        st.write(f"**Veicolo:** {p['modello']} — **Anno:** {p['anno']} — **Alimentazione:** {p['alimentazione']} ({p['cilindrata']} / {p['potenza']})")
+        st.write(f"**Targa:** {p['targa']} — **VIN:** {p['vin']}")
         st.markdown("---")
         
-        # Tabella nativa di Streamlit (evita qualsiasi errore di sintassi HTML a schermo)
         df_preventivo = pd.DataFrame(p['elementi'])
         st.dataframe(df_preventivo, use_container_width=True, hide_index=True)
         
