@@ -148,11 +148,11 @@ elif menu == "Catalogo e Preventivi B2B":
                 tot_ricambi_agg += c_agg
                 tot_ore += item["ore"]
                 dettagli_calcolati.append({
-                    "categoria": item["categoria"],
-                    "nome": item["nome"],
-                    "codice": item["codice"],
-                    "costo": c_agg,
-                    "ore": item["ore"]
+                    "Categoria": item["categoria"],
+                    "Ricambio": item["nome"],
+                    "Codice": item["codice"],
+                    "Costo Listino": f"€ {c_agg:.2f}",
+                    "Manodopera": f"{item['ore']}h"
                 })
             
             tot_lavoro = tot_ore * labor_rate
@@ -174,37 +174,17 @@ elif menu == "Catalogo e Preventivi B2B":
         p = st.session_state['preventivo_finale']
         st.markdown("---")
         
-        elementi_html = ""
-        for item in p['elementi']:
-            elementi_html += f"""
-            <tr>
-                <td style="padding: 8px 0; border-bottom: 1px solid #30363D;">{item['nome']} <br><small style="color: #8b949e;">({item['categoria']})</small></td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #30363D;"><code>{item['codice']}</code></td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #30363D;">€ {item['costo']:.2f}</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid #30363D;">{item['ore']}h</td>
-            </tr>
-            """
+        st.markdown(f"### 📄 Foglio Preventivo Ufficiale IAmecc")
+        st.write(f"**Veicolo:** {p['modello']} — **Anno:** {p['anno']} — **Targa:** {p['targa']}")
+        st.markdown("---")
         
-        st.markdown(f"""
-        <div style="background-color: #161B22; padding: 24px; border-radius: 16px; border: 1px solid #30363D;">
-            <h2 style="color: #00E5FF; margin-top: 0;">📄 Foglio Preventivo Ufficiale IAmecc</h2>
-            <p><b>Veicolo:</b> {p['modello']} &nbsp;|&nbsp; <b>Anno:</b> {p['anno']} &nbsp;|&nbsp; <b>Targa:</b> {p['targa']}</p>
-            <hr style="border-color: #30363D;">
-            <table style="width:100%; color: white; margin-bottom: 15px; border-collapse: collapse;">
-                <tr style="border-bottom: 2px solid #30363D; text-align: left;">
-                    <th style="padding-bottom: 8px;">Ricambio / Categoria</th>
-                    <th style="padding-bottom: 8px;">Codice</th>
-                    <th style="padding-bottom: 8px;">Costo (Listino)</th>
-                    <th style="padding-bottom: 8px;">Manodopera</th>
-                </tr>
-                {elementi_html}
-            </table>
-            <hr style="border-color: #30363D;">
-            <p><b>Totale Ricambi (Aggiornato):</b> € {p['tot_ricambi']:.2f}</p>
-            <p><b>Totale Manodopera ({p['tot_ore']} ore complessive):</b> € {p['tot_lavoro']:.2f}</p>
-            <h3 style="color: #00E5FF; text-align: right;">Totale Preventivo: € {p['totale_generale']:.2f}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+        # Tabella nativa di Streamlit (evita qualsiasi errore di sintassi HTML a schermo)
+        df_preventivo = pd.DataFrame(p['elementi'])
+        st.dataframe(df_preventivo, use_container_width=True, hide_index=True)
+        
+        st.markdown(f"**Totale Ricambi (Aggiornato):** € {p['tot_ricambi']:.2f}")
+        st.markdown(f"**Totale Manodopera ({p['tot_ore']} ore complessive):** € {p['tot_lavoro']:.2f}")
+        st.markdown(f"### **Totale Preventivo: € {p['totale_generale']:.2f}**")
         
         st.markdown("<br>", unsafe_allow_html=True)
         
