@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+
+class QuoteScreen extends StatelessWidget {
+  final String diagnosisResult;
+  final double estimatedTotal;
+
+  const QuoteScreen({
+    super.key, 
+    required this.diagnosisResult, 
+    required this.estimatedTotal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Preventivo Intelligente'),
+        backgroundColor: const Color(0xFF161B22),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Card riassunto diagnosi
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161B22),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Esito Diagnostica AI", style: TextStyle(color: Color(0xFF00E5FF), fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(diagnosisResult, style: const TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Dettaglio prezzi anti-rincari
+            const Text("Dettaglio Economico", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Divider(color: Colors.white24),
+            const ListTile(
+              title: Text("Costo Ricambio Originale + Adeguamento Listino"),
+              trailing: Text("€ 145.00", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const ListTile(
+              title: Text("Manodopera stimata (2.5 ore)"),
+              trailing: Text("€ 125.00", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const Spacer(),
+
+            // Totale e Pulsanti Azione
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("TOTALE:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("€ ${estimatedTotal.toStringAsFixed(2)}", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF00E5FF))),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            ElevatedButton.icon(
+              onPressed: () {
+                // Azione: Genera PDF / Ordina su AUTODOC
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Generazione PDF e invio ordine API in corso...")),
+                );
+              },
+              icon: const Icon(Icons.picture_as_pdf),
+              label: const Text("GENERA PDF E ORDINA RICAMBIO"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00E5FF),
+                foregroundColor: Colors.black,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+import 'quote_screen.dart';
+
+class CatalogScreen extends StatefulWidget {
+  const CatalogScreen({super.key});
+
+  @override
+  State<CatalogScreen> createState() => _CatalogScreenState();
+}
+
+class _CatalogScreenState extends State<CatalogScreen> {
+  final TextEditingController _plateController = TextEditingController();
+  bool _isLoading = false;
+
+  void _searchVehicleAndParts() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulazione chiamata API di decodifica targa e ricerca ricambi
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Passaggio alla schermata preventivo con dati simulati
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const QuoteScreen(
+            diagnosisResult: "Anomalia rilevata: Usura cuscinetto tendicinghia",
+            estimatedTotal: 270.00,
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Catalogo & Schemi Veicolo'),
+        backgroundColor: const Color(0xFF161B22),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Inserisci i dati del veicolo",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Il sistema decoderà il telaio e caricherà gli schemi tecnici ufficiali.",
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            
+            // Campo inserimento Targa / VIN
+            TextField(
+              controller: _plateController,
+              decoration: InputDecoration(
+                labelText: 'Targa o Numero Telaio (VIN)',
+                hintText: 'Es. AB123CD',
+                filled: true,
+                fillColor: const Color(0xFF161B22),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(Icons.directions_car, color: Color(0xFF00E5FF)),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Pulsante di ricerca catalogo
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _searchVehicleAndParts,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : const Text(
+                        'CERCA SCHEMI E RICAMBI',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
