@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_mic_recorder import mic_recorder
-from utils import interroga_portale_motorizzazione, analizza_audio_motore, get_catalogo_ricambi
+from utils import interroga_verificaauto, analizza_audio_motore, get_catalogo_ricambi
 
 st.set_page_config(
     page_title="IAmecc - Automotive Suite",
@@ -17,7 +17,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Suite professionale per officine: Interrogazione Portale Motorizzazione e Diagnostica FFT.")
+st.markdown("Suite professionale per officine: Verifica Veicolo (VerificaAuto.it) e Diagnostica FFT.")
 
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica Acustica & Riconoscimento AI", "Catalogo e Preventivi B2B"], key="nav_menu_principale")
 
@@ -63,7 +63,7 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
                 if not report_ia["valido"]:
                     st.markdown(f"""
                     <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FF5555; margin-bottom: 15px;">
-                        <h4 style="color: #FF5555; margin-top: 0;">⚠️ Avviso Campione Acustico</h4>
+                        <h4 style="color: #FF5555; margin-top: 0;">⚠️️ Avviso Campione Acustico</h4>
                         <p style="margin: 4px 0;"><b>Stato:</b> {report_ia['tipo_rilevato']}</p>
                         <p style="margin: 4px 0;"><b>Nota:</b> {report_ia['anomalia']}</p>
                     </div>
@@ -95,7 +95,7 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    targa_grezza = st.text_input("Inserisci Targa o Telaio (Interrogazione Portale)", "", key="input_targa_veicolo")
+    targa_grezza = st.text_input("Inserisci Targa o Telaio (Verifica Veicolo)", "", key="input_targa_veicolo")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
     
     if 'ultima_targa_inserita' not in st.session_state:
@@ -106,12 +106,12 @@ elif menu == "Catalogo e Preventivi B2B":
         if 'preventivo_finale' in st.session_state:
             st.session_state.pop('preventivo_finale')
 
-    veicolo_info = interroga_portale_motorizzazione(targa_input)
+    veicolo_info = interroga_verificaauto(targa_input)
     
     if veicolo_info.get("success"):
         st.markdown(f"""
         <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
-            <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Estratto Telematico - Portale Motorizzazione</h3>
+            <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Estratto Telematico - VerificaAuto.it</h3>
             <p style="margin: 4px 0;"><b>Categoria:</b> {veicolo_info['tipo']}</p>
             <p style="margin: 4px 0;"><b>Modello Ufficiale:</b> {veicolo_info['modello']} &nbsp;|&nbsp; <b>Anno:</b> {veicolo_info['anno']}</p>
             <p style="margin: 4px 0;"><b>Alimentazione:</b> {veicolo_info['alimentazione']} &nbsp;|&nbsp; <b>Cilindrata:</b> {veicolo_info['cilindrata']} &nbsp;|&nbsp; <b>Potenza:</b> {veicolo_info['potenza']}</p>
@@ -119,7 +119,7 @@ elif menu == "Catalogo e Preventivi B2B":
         </div>
         """, unsafe_allow_html=True)
     else:
-        st.info(f"💡 {veicolo_info.get('messaggio', 'Inserisci una targa valida per interrogare il portale.')}")
+        st.info(f"💡 {veicolo_info.get('messaggio', 'Inserisci una targa valida per verificare il veicolo.')}")
     
     st.markdown("---")
     st.markdown("### 📋 Selezione Componenti e Ricambi")
@@ -166,7 +166,7 @@ elif menu == "Catalogo e Preventivi B2B":
         if not st.session_state['carrello_pezzi']:
             st.warning("Il carrello dei ricambi è vuoto. Aggiungi almeno un pezzo.")
         elif not veicolo_info.get("success"):
-            st.warning("Prima di calcolare il preventivo, inserisci una targa valida per identificare il veicolo.")
+            st.warning("Prima di calcolare il preventivo, inserisci una targa valida per verificare il veicolo.")
         else:
             tot_ricambi = 0
             tot_ore = 0
