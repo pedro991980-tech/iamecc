@@ -22,7 +22,7 @@ if menu == "Diagnostica Acustica AI":
     # Registratore audio dal vivo integrato con pulsante su schermo
     audio_data = mic_recorder(
         start_prompt="🔴 Avvia Registrazione Microfono",
-        stop_prompt="⏹️ Ferma Registrazione",
+        stop_prompt="️⏹️ Ferma Registrazione",
         key='mic_live_ia'
     )
     
@@ -31,21 +31,25 @@ if menu == "Diagnostica Acustica AI":
         if st.button("Avvia Analisi Spettrale AI sul Registrato", key="btn_avvia_ia_live"):
             with st.spinner("Elaborazione frequenze acustiche in corso..."):
                 st.success("Analisi completata con successo!")
-                st.metric(label="Anomalia Rilevata", value="Usura cuscinetto tendicinghia / Cinghia servizi", delta="99.4% Confidenza")
+                
+                # Sostituito st.metric con un box HTML/Markdown leggibile per evitare il troncamento del testo
+                st.markdown("""
+                <div style="background-color: #161B22; padding: 18px; border-radius: 12px; border: 1px solid #30363D; margin-top: 10px;">
+                    <p style="color: #8B949E; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;"><b>Anomalia Rilevata</b></p>
+                    <p style="color: #FFFFFF; margin: 6px 0 0 0; font-size: 16px; font-weight: bold; line-height: 1.4;">Usura cuscinetto tendicinghia / Cinghia servizi</p>
+                    <p style="color: #3FB950; margin: 8px 0 0 0; font-size: 14px;"><b>↑ 99.4% Confidenza</b></p>
+                </div>
+                """, unsafe_allow_html=True)
     else:
         st.info("💡 Clicca su 'Avvia Registrazione' e avvicina il microfono alla parte meccanica sospetta.")
 
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    # --- 1. DECODER UNIVERSALE ACI / MOTORIZZAZIONE (OGNI VEICOLO) ---
+    # --- 1. DECODER UNIVERSALE ACI / MOTORIZZAZIONE ---
     targa_input = st.text_input("Inserisci Targa o Telaio (Auto, Moto, Furgone, Corriera)", "FL655GS", key="input_targa_vin").upper().strip()
     
     def decodifica_universale_pubblica(targa):
-        """
-        Simulatore di interrogazione al Pubblico Registro Automobilistico (ACI) 
-        e Motorizzazione Civile per qualsiasi categoria di veicolo targato.
-        """
         archivio_nazionale = {
             "FL655GS": {"tipo": "Autovettura", "modello": "Alfa Romeo Tonale 1.5 VGT Hybrid", "anno": 2023, "alimentazione": "Mild Hybrid (Benzina)", "cilindrata": "1469 cc", "potenza": "160 CV", "vin": "ZAR7450000P123999"},
             "AB123CD": {"tipo": "Autovettura", "modello": "Volkswagen Golf VII 2.0 TDI", "anno": 2018, "alimentazione": "Diesel", "cilindrata": "1968 cc", "potenza": "150 CV", "vin": "WVWZZZAUZJW123456"},
@@ -58,12 +62,9 @@ elif menu == "Catalogo e Preventivi B2B":
         if targa in archivio_nazionale:
             return archivio_nazionale[targa]
         else:
-            # Algoritmo di decodifica universale per qualsiasi altra targa inserita
             import hashlib
             h = int(hashlib.md5(targa.encode()).hexdigest(), 16)
             tipi = ["Autovettura", "Autocarro / Furgone", "Motociclo", "Autobus / Corriera"]
-            modelli = ["Veicolo Commerciale Standard", "Modello Polivalente ACI", "Unità di Trasporto Pesante", "Veicolo Targato Motorizzazione"]
-            
             return {
                 "tipo": tipi[h % len(tipi)],
                 "modello": f"Veicolo Generico ({targa})",
@@ -76,7 +77,6 @@ elif menu == "Catalogo e Preventivi B2B":
 
     veicolo_info = decodifica_universale_pubblica(targa_input)
     
-    # Scheda dati auto ufficiale ACI / Motorizzazione a schermo
     st.markdown(f"""
     <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
         <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Registro Telematico Ufficiale (ACI / Motorizzazione)</h3>
@@ -89,7 +89,6 @@ elif menu == "Catalogo e Preventivi B2B":
     
     st.markdown("---")
     
-    # --- 2. CATALOGO COMPLETO COMPONENTI AUTO ---
     st.markdown("### 📋 Selezione Ricambi da Liste Diverse")
     
     catalogo_ricambi = {
@@ -174,7 +173,6 @@ elif menu == "Catalogo e Preventivi B2B":
 
     st.markdown("---")
     
-    # --- 3. CALCOLO PREVENTIVO FINALE ---
     if st.button("🧮 Calcola Preventivo Totale", key="btn_calcola_totale"):
         if not st.session_state['carrello_pezzi']:
             st.warning("Il carrello dei ricambi è vuoto. Aggiungi almeno un pezzo.")
@@ -216,7 +214,6 @@ elif menu == "Catalogo e Preventivi B2B":
                 "totale_generale": totale_generale
             }
 
-    # --- 4. VISUALIZZAZIONE E STAMPA FOGLIO PREVENTIVO ---
     if 'preventivo_finale' in st.session_state:
         p = st.session_state['preventivo_finale']
         st.markdown("---")
