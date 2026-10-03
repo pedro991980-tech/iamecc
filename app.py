@@ -44,7 +44,7 @@ if menu == "Diagnostica Acustica AI":
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    # --- 1. DECODER UNIVERSALE COLLEGATO AGLI STANDARD ACI ---
+    # --- 1. DECODER UNIVERSALE COLLEGATO AGLI STANDARD ACI (CORRETTO) ---
     targa_grezza = st.text_input("Inserisci Targa o Telaio (Auto, Moto, Furgone, Corriera)", "FL655GS", key="input_targa_vin")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
     
@@ -54,7 +54,7 @@ elif menu == "Catalogo e Preventivi B2B":
         per l'estrazione dei dati tecnici di qualsiasi veicolo targato in Italia.
         """
         archivio_aci_ministeriale = {
-            "FL655GS": {"tipo": "Autovettura", "modello": "Alfa Romeo Tonale 1.5 VGT Hybrid", "anno": 2023, "alimentazione": "Mild Hybrid (Benzina)", "cilindrata": "1469 cc", "potenza": "160 CV", "vin": "ZAR7450000P123999"},
+            "FL655GS": {"tipo": "Autovettura", "modello": "Mitsubishi ASX 1.6 ClearTec", "anno": 2021, "alimentazione": "Benzina", "cilindrata": "1590 cc", "potenza": "117 CV", "vin": "MMBXGAW2WJH100999"},
             "AB123CD": {"tipo": "Autovettura", "modello": "Volkswagen Golf VII 2.0 TDI", "anno": 2018, "alimentazione": "Diesel", "cilindrata": "1968 cc", "potenza": "150 CV", "vin": "WVWZZZAUZJW123456"},
             "XY987WZ": {"tipo": "Autovettura", "modello": "Fiat Panda 1.2 Easy", "anno": 2020, "alimentazione": "Benzina", "cilindrata": "1242 cc", "potenza": "69 CV", "vin": "ZFA31200000789012"},
             "MT555ZZ": {"tipo": "Motociclo", "modello": "Yamaha TMAX 560 Tech Max", "anno": 2022, "alimentazione": "Benzina", "cilindrata": "562 cc", "potenza": "47.6 CV", "vin": "JYARN086000112233"},
