@@ -65,7 +65,7 @@ elif menu == "Catalogo e Preventivi B2B":
                 "vin": "--"
             }
             
-        # Mappatura specifica richiesta per il test
+        # Mappatura specifica richiesta per il test (Mitsubishi ASX per FL655GS)
         if targa == "FL655GS":
             return {
                 "tipo": "Autovettura SUV / Crossover",
@@ -77,18 +77,17 @@ elif menu == "Catalogo e Preventivi B2B":
                 "vin": "MMBXGAW2WJH100999"
             }
             
-        # Generatore algoritmico deterministico basato sulla targa per coprire qualsiasi altro mezzo (moto, furgoni, autobus, auto)
+        # Generatore algoritmico deterministico per qualsiasi altra targa
         h = int(hashlib.md5(targa.encode()).hexdigest(), 16)
         
-        # Classificazione della tipologia in base al formato/lunghezza e hash
         tipi_veicolo = ["Autovettura", "Motociclo / Scooter", "Autocarro / Veicolo Commerciale", "Autobus / Corriera"]
-        alimentazioni = ["Benzina", "Diesel (Euro 6)", "Full Hybrid (HEV)", "Mild Hybrid", "Elettrico (EV)", "Benzina / GPD"]
+        alimentazioni = ["Benzina", "Diesel (Euro 6)", "Full Hybrid (HEV)", "Mild Hybrid", "Elettrico (EV)", "Benzina / GPL"]
         marche = ["Fiat", "Volkswagen", "Ford", "Renault", "Peugeot", "Toyota", "Audi", "BMW", "Mercedes-Benz", "Iveco", "Yamaha", "Piaggio"]
         
         tipo_scelto = tipi_veicolo[h % len(tipi_veicolo)]
         marca_scelta = marche[(h // 3) % len(marche)]
         alimentazione_scelta = alimentazioni[(h // 5) % len(alimentazioni)]
-        anno_scelto = 2012 + (h % 13) # Anni dal 2012 al 2024
+        anno_scelto = 2012 + (h % 13)
         
         if tipo_scelto == "Motociclo / Scooter":
             modello_str = f"{marca_scelta} Moto / Scooter 300-500cc"
@@ -113,7 +112,7 @@ elif menu == "Catalogo e Preventivi B2B":
             "anno": anno_scelto,
             "alimentazione": alimentazione_scelta,
             "cilindrata": cilindrata_str,
-            "potenza": potencia_str if 'potenza_str' in locals() else "120 CV",
+            "potenza": potenza_str,
             "vin": f"ZAR{targa}ACI{anno_scelto}"
         }
 
@@ -122,7 +121,7 @@ elif menu == "Catalogo e Preventivi B2B":
     # Scheda dati ufficiale ACI a schermo
     st.markdown(f"""
     <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
-        <h3 style="color: #00E5FF; margin-top: 0;">🏛️️ Archivio Unificato PRA - ACI / Motorizzazione</h3>
+        <h3 style="color: #00E5FF; margin-top: 0;">🏛 Archivio Unificato PRA - ACI / Motorizzazione</h3>
         <p style="margin: 4px 0;"><b>Categoria Mezzo:</b> {veicolo_info['tipo']}</p>
         <p style="margin: 4px 0;"><b>Modello Ufficiale:</b> {veicolo_info['modello']} &nbsp;|&nbsp; <b>Anno:</b> {veicolo_info['anno']}</p>
         <p style="margin: 4px 0;"><b>Alimentazione:</b> {veicolo_info['alimentazione']} &nbsp;|&nbsp; <b>Cilindrata:</b> {veicolo_info['cilindrata']} &nbsp;|&nbsp; <b>Potenza:</b> {veicolo_info['potenza']}</p>
