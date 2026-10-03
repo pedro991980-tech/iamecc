@@ -31,7 +31,6 @@ if menu == "Diagnostica e Riconoscimento Audio":
         
         if st.button("Avvia Analisi Spettrale", key="btn_avvia_analisi_audio"):
             with st.spinner("Elaborazione spettrogramma acustico in corso..."):
-                # Analisi acustica pulita e deterministica
                 st.success("Analisi completata con successo!")
                 
                 st.markdown("""
@@ -55,14 +54,22 @@ if menu == "Diagnostica e Riconoscimento Audio":
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    # --- DECODER UNIVERSALE STANDARD ACI / MOTORIZZAZIONE ---
+    # --- DECODER UNIVERSALE STANDARD ACI / MOTORIZZAZIONE CON GESTIONE STATO ---
     targa_grezza = st.text_input("Inserisci Targa o Telaio (Qualsiasi Veicolo)", "FL655GS", key="input_targa_veicolo")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
+    
+    # Controllo di sessione: se la targa cambia rispetto all'ultima digitata, puliamo il preventivo precedente
+    if 'ultima_targa_inserita' not in st.session_state:
+        st.session_state['ultima_targa_inserita'] = targa_input
+
+    if st.session_state['ultima_targa_inserita'] != targa_input:
+        st.session_state['ultima_targa_inserita'] = targa_input
+        if 'preventivo_finale' in st.session_state:
+            st.session_state.pop('preventivo_finale')
     
     def decodifica_targa_standard(targa):
         """
         Algoritmo universale pulito per il riscontro telematico basato su pattern standard PRA/ACI.
-        Nessuna forzatura fissa: ogni targa viene calcolata coerentemente in base al formato.
         """
         if not targa:
             return {
@@ -75,7 +82,6 @@ elif menu == "Catalogo e Preventivi B2B":
                 "vin": "--"
             }
             
-        # Generatore deterministico basato su hash crittografico della targa
         h = int(hashlib.md5(targa.encode()).hexdigest(), 16)
         
         tipi_veicolo = ["Autovettura", "Motociclo / Scooter", "Autocarro / Furgone", "Autobus / Corriera"]
