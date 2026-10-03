@@ -17,7 +17,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Suite professionale per officine: Verifica Veicolo (VerificaAuto.it) e Diagnostica FFT.")
+st.markdown("Suite professionale per officine: Verifica Veicolo e Diagnostica FFT.")
 
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica Acustica & Riconoscimento AI", "Catalogo e Preventivi B2B"], key="nav_menu_principale")
 
@@ -63,7 +63,7 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
                 if not report_ia["valido"]:
                     st.markdown(f"""
                     <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FF5555; margin-bottom: 15px;">
-                        <h4 style="color: #FF5555; margin-top: 0;">⚠️️ Avviso Campione Acustico</h4>
+                        <h4 style="color: #FF5555; margin-top: 0;">⚠️ Avviso Campione Acustico</h4>
                         <p style="margin: 4px 0;"><b>Stato:</b> {report_ia['tipo_rilevato']}</p>
                         <p style="margin: 4px 0;"><b>Nota:</b> {report_ia['anomalia']}</p>
                     </div>
