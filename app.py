@@ -1,16 +1,14 @@
 import streamlit as st
 import pandas as pd
 from streamlit_mic_recorder import mic_recorder
-from utils import decodifica_targa_standard, analizza_audio_motore, get_catalogo_ricambi
+from utils import interroga_portale_motorizzazione, analizza_audio_motore, get_catalogo_ricambi
 
-# Configurazione della pagina
 st.set_page_config(
     page_title="IAmecc - Automotive Suite",
     page_icon="🚗",
     layout="centered"
 )
 
-# Stile visivo pulito e professionale in stile dark mode
 st.markdown("""
     <style>
     .main { background-color: #0E1117; }
@@ -19,13 +17,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Suite professionale per officine: Diagnostica Acustica FFT Avanzata e Preventivi B2B.")
+st.markdown("Suite professionale per officine: Interrogazione Portale Motorizzazione e Diagnostica FFT.")
 
-# Navigazione moduli
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica Acustica & Riconoscimento AI", "Catalogo e Preventivi B2B"], key="nav_menu_principale")
 
 if menu == "Diagnostica Acustica & Riconoscimento AI":
-    st.header("🎙️ Stazione di Riconoscimento & Diagnosi Acustica (DSP)")
+    st.header("🎙️ Stazione di Diagnosi Acustica (DSP)")
     st.markdown("---")
     
     col_info1, col_info2 = st.columns(2)
@@ -33,8 +30,8 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
         st.markdown("### 📋 Linee Guida Operative")
         st.markdown("""
         1. **Posizionamento:** Avvicina il microfono a 20-30 cm dal vano motore.
-        2. **Acquisizione:** Registra per **10-15 secondi** mentre il motore è in moto o sotto carico.
-        3. **Elaborazione:** Avvia l'analisi spettrale FFT per validare il sound ed estrarre la diagnosi.
+        2. **Acquisizione:** Registra per **10-15 secondi** con il motore in moto.
+        3. **Elaborazione:** Avvia l'analisi spettrale FFT per identificare l'anomalia.
         """)
     with col_info2:
         st.markdown("### ⚙️ Stato Sistema")
@@ -44,7 +41,6 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
     st.markdown("---")
     st.subheader("🔴 Pannello di Acquisizione Audio")
     
-    # Registratore microfono ottimizzato per sessioni lunghe
     audio_data = mic_recorder(
         start_prompt="▶️ Avvia Registrazione Audio Motore",
         stop_prompt="⏹️ Ferma e Salva Registrazione",
@@ -58,53 +54,48 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
         
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔍 Avvia Analisi Spettrale (FFT & DSP)", key="btn_avvia_analisi_pro"):
-            with st.spinner("Elaborazione Trasformata di Fourier (FFT) e densità spettrale in corso..."):
-                # Eseguiamo l'analisi reale basata sul buffer audio e sulla FFT
+            with st.spinner("Elaborazione Trasformata di Fourier (FFT) in corso..."):
                 report_ia = analizza_audio_motore(audio_data['bytes'])
                 
-                st.success("Analisi spettrale completata con successo!")
+                st.success("Analisi completata con successo!")
                 st.markdown("### 📊 Report Diagnostico IA Avanzato")
                 
                 if not report_ia["valido"]:
-                    # Avviso nel caso in cui il segnale sia troppo debole o assente
                     st.markdown(f"""
                     <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FF5555; margin-bottom: 15px;">
                         <h4 style="color: #FF5555; margin-top: 0;">⚠️ Avviso Campione Acustico</h4>
-                        <p style="margin: 4px 0;"><b>Stato Rilevamento:</b> {report_ia['tipo_rilevato']}</p>
-                        <p style="margin: 4px 0;"><b>Diagnostica Preliminare:</b> {report_ia['anomalia']}</p>
-                        <p style="margin: 4px 0; color: #FFA657;"><b>Suggerimento:</b> Avvicina lo smartphone al motore acceso per registrare un segnale idoneo all'analisi FFT.</p>
+                        <p style="margin: 4px 0;"><b>Stato:</b> {report_ia['tipo_rilevato']}</p>
+                        <p style="margin: 4px 0;"><b>Nota:</b> {report_ia['anomalia']}</p>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
-                    # Report valido con dati spettrali reali
                     st.markdown(f"""
                     <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #00E5FF; margin-bottom: 15px;">
-                        <h4 style="color: #00E5FF; margin-top: 0;">🚗 Profilo Veicolo & Spettro (Audio Fingerprint)</h4>
+                        <h4 style="color: #00E5FF; margin-top: 0;">🚗 Profilo Spettrale Rilevato</h4>
                         <p style="margin: 4px 0;"><b>Riscontro:</b> {report_ia['tipo_rilevato']}</p>
-                        <p style="margin: 4px 0;"><b>Architettura Motore:</b> {report_ia['motore']}</p>
-                        <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza:</b> {report_ia['confidenza_veicolo']}</p>
+                        <p style="margin: 4px 0;"><b>Architettura:</b> {report_ia['motore']}</p>
+                        <p style="margin: 4px 0; color: #3FB950;"><b>Confidenza:</b> {report_ia['confidenza_veicolo']}</p>
                     </div>
                     """, unsafe_allow_html=True)
                     
                     st.markdown(f"""
                     <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FFA657; margin-bottom: 15px;">
                         <h4 style="color: #FFA657; margin-top: 0;">🔧 Diagnosi Meccanica (Bande di Frequenza)</h4>
-                        <p style="margin: 4px 0;"><b>Anomalia Rilevata:</b> {report_ia['anomalia']}</p>
-                        <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza Guasto:</b> {report_ia['confidenza_guasto']}</p>
+                        <p style="margin: 4px 0;"><b>Anomalia:</b> {report_ia['anomalia']}</p>
+                        <p style="margin: 4px 0; color: #3FB950;"><b>Confidenza Guasto:</b> {report_ia['confidenza_guasto']}</p>
                     </div>
                     """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style="background-color: #161B22; padding: 15px; border-radius: 10px; border: 1px solid #30363D; text-align: center; color: #8B949E;">
-            Nessun audio registrato. Clicca su <b>'Avvia Registrazione'</b> per iniziare l'acquisizione del sound del motore.
+            Nessun audio registrato. Clicca su <b>'Avvia Registrazione'</b> per iniziare l'acquisizione.
         </div>
         """, unsafe_allow_html=True)
 
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
-    # --- DECODER UNIVERSALE STANDARD ACI / MOTORIZZAZIONE CON GESTIONE STATO ---
-    targa_grezza = st.text_input("Inserisci Targa o Telaio (Qualsiasi Veicolo)", "FL655GS", key="input_targa_veicolo")
+    targa_grezza = st.text_input("Inserisci Targa o Telaio (Interrogazione Portale)", "", key="input_targa_veicolo")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
     
     if 'ultima_targa_inserita' not in st.session_state:
@@ -115,17 +106,20 @@ elif menu == "Catalogo e Preventivi B2B":
         if 'preventivo_finale' in st.session_state:
             st.session_state.pop('preventivo_finale')
 
-    veicolo_info = decodifica_targa_standard(targa_input)
+    veicolo_info = interroga_portale_motorizzazione(targa_input)
     
-    st.markdown(f"""
-    <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
-        <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Estratto Telematico PRA - ACI</h3>
-        <p style="margin: 4px 0;"><b>Categoria:</b> {veicolo_info['tipo']}</p>
-        <p style="margin: 4px 0;"><b>Modello Ufficiale:</b> {veicolo_info['modello']} &nbsp;|&nbsp; <b>Anno:</b> {veicolo_info['anno']}</p>
-        <p style="margin: 4px 0;"><b>Alimentazione:</b> {veicolo_info['alimentazione']} &nbsp;|&nbsp; <b>Cilindrata:</b> {veicolo_info['cilindrata']} &nbsp;|&nbsp; <b>Potenza:</b> {veicolo_info['potenza']}</p>
-        <p style="margin: 4px 0;"><b>Targa:</b> {targa_input} &nbsp;|&nbsp; <b>Telaio (VIN):</b> <code>{veicolo_info['vin']}</code></p>
-    </div>
-    """, unsafe_allow_html=True)
+    if veicolo_info.get("success"):
+        st.markdown(f"""
+        <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
+            <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Estratto Telematico - Portale Motorizzazione</h3>
+            <p style="margin: 4px 0;"><b>Categoria:</b> {veicolo_info['tipo']}</p>
+            <p style="margin: 4px 0;"><b>Modello Ufficiale:</b> {veicolo_info['modello']} &nbsp;|&nbsp; <b>Anno:</b> {veicolo_info['anno']}</p>
+            <p style="margin: 4px 0;"><b>Alimentazione:</b> {veicolo_info['alimentazione']} &nbsp;|&nbsp; <b>Cilindrata:</b> {veicolo_info['cilindrata']} &nbsp;|&nbsp; <b>Potenza:</b> {veicolo_info['potenza']}</p>
+            <p style="margin: 4px 0;"><b>Targa:</b> {targa_input} &nbsp;|&nbsp; <b>Telaio (VIN):</b> <code>{veicolo_info['vin']}</code></p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.info(f"💡 {veicolo_info.get('messaggio', 'Inserisci una targa valida per interrogare il portale.')}")
     
     st.markdown("---")
     st.markdown("### 📋 Selezione Componenti e Ricambi")
@@ -171,6 +165,8 @@ elif menu == "Catalogo e Preventivi B2B":
     if st.button("🧮 Calcola Preventivo Totale", key="btn_calcola_preventivo"):
         if not st.session_state['carrello_pezzi']:
             st.warning("Il carrello dei ricambi è vuoto. Aggiungi almeno un pezzo.")
+        elif not veicolo_info.get("success"):
+            st.warning("Prima di calcolare il preventivo, inserisci una targa valida per identificare il veicolo.")
         else:
             tot_ricambi = 0
             tot_ore = 0
@@ -216,7 +212,7 @@ elif menu == "Catalogo e Preventivi B2B":
         st.markdown(f"### 📄 Foglio Preventivo Ufficiale IAmecc")
         st.write(f"**Categoria Mezzo:** {p['tipo']} — **Modello:** {p['modello']} ({p['anno']})")
         st.write(f"**Alimentazione:** {p['alimentazione']} ({p['cilindrata']} / {p['potenza']})")
-        st.write(f"**Targa Verificata (PRA - ACI):** {p['targa']} — **VIN:** {p['vin']}")
+        st.write(f"**Targa Verificata:** {p['targa']} — **VIN:** {p['vin']}")
         st.markdown("---")
         
         df_preventivo = pd.DataFrame(p['elementi'])
