@@ -14,7 +14,6 @@ def interroga_verificaauto(targa):
         }
         
     try:
-        # Integrazione strutturata basata sui dati del portale di verifica
         return {
             "success": True,
             "tipo": "Autovettura / SUV Standard",
@@ -25,7 +24,6 @@ def interroga_verificaauto(targa):
             "potenza": "130 CV (96 kW)",
             "vin": f"ZAR{targa}VA2026"
         }
-        
     except Exception as e:
         return {
             "success": False,
@@ -34,11 +32,18 @@ def interroga_verificaauto(targa):
 
 def analizza_audio_motore(audio_bytes):
     """
-    Pipeline tecnica avanzata di analisi acustica (DSP & FFT) sul buffer del microfono.
+    Pipeline tecnica avanzata di analisi acustica (DSP & FFT) sul buffer del microfono,
+    con controllo di sicurezza per l'allineamento dei byte in memoria.
     """
     try:
         audio_buffer = io.BytesIO(audio_bytes)
-        audio_array = np.frombuffer(audio_buffer.getvalue(), dtype=np.int16)
+        raw_bytes = audio_buffer.getvalue()
+        
+        # Correzione allineamento buffer per evitare errori di dimensione int16
+        if len(raw_bytes) % 2 != 0:
+            raw_bytes = raw_bytes[:-1]
+            
+        audio_array = np.frombuffer(raw_bytes, dtype=np.int16)
         
         if len(audio_array) == 0:
             return {"valido": False, "anomalia": "Buffer audio vuoto."}
