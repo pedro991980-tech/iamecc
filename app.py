@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_mic_recorder import mic_recorder
-import numpy as np
-import io
-from utils import decodifica_targa_standard, get_catalogo_ricambi
+from utils import decodifica_targa_standard, analizza_audio_motore, get_catalogo_ricambi
 
 # Configurazione della pagina
 st.set_page_config(
@@ -12,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Stile visivo pulito e professionale
+# Stile visivo pulito e professionale in stile dark mode
 st.markdown("""
     <style>
     .main { background-color: #0E1117; }
@@ -21,13 +19,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Suite professionale per officine: Diagnostica Acustica Avanzata e Preventivi B2B.")
+st.markdown("Suite professionale per officine: Diagnostica Acustica FFT Avanzata e Preventivi B2B.")
 
 # Navigazione moduli
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica Acustica & Riconoscimento AI", "Catalogo e Preventivi B2B"], key="nav_menu_principale")
 
 if menu == "Diagnostica Acustica & Riconoscimento AI":
-    st.header("🎙️ Stazione di Riconoscimento & Diagnosi Acustica")
+    st.header("🎙️ Stazione di Riconoscimento & Diagnosi Acustica (DSP)")
     st.markdown("---")
     
     col_info1, col_info2 = st.columns(2)
@@ -35,17 +33,18 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
         st.markdown("### 📋 Linee Guida Operative")
         st.markdown("""
         1. **Posizionamento:** Avvicina il microfono a 20-30 cm dal vano motore.
-        2. **Acquisizione:** Registra per **10-15 secondi** per campionare il regime e le accelerazioni.
-        3. **Elaborazione:** Avvia l'analisi spettrale per identificare veicolo e guasto.
+        2. **Acquisizione:** Registra per **10-15 secondi** mentre il motore è in moto o sotto carico.
+        3. **Elaborazione:** Avvia l'analisi spettrale FFT per validare il sound ed estrarre la diagnosi.
         """)
     with col_info2:
-        st.markdown("### ⚙️️ Stato Sistema")
-        st.success("🟢 Motore IA Acustico Attivo")
-        st.info("💡 Elaborazione buffer numpy pronta.")
+        st.markdown("### ⚙️ Stato Sistema")
+        st.success("🟢 Pipeline FFT & DSP Attiva")
+        st.info("💡 Analisi delle frequenze in Hertz abilitata.")
 
     st.markdown("---")
     st.subheader("🔴 Pannello di Acquisizione Audio")
     
+    # Registratore microfono ottimizzato per sessioni lunghe
     audio_data = mic_recorder(
         start_prompt="▶️ Avvia Registrazione Audio Motore",
         stop_prompt="⏹️ Ferma e Salva Registrazione",
@@ -57,37 +56,43 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
         st.markdown("#### 🎧 Riproduzione Campione Registrato")
         st.audio(audio_data['bytes'], format='audio/wav')
         
-        try:
-            audio_bytes = audio_data['bytes']
-            audio_buffer = io.BytesIO(audio_bytes)
-            audio_array = np.frombuffer(audio_buffer.getvalue(), dtype=np.int16)
-        except Exception:
-            pass
-
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔍 Avvia Analisi IA (Riconoscimento Veicolo & Guasto)", key="btn_avvia_analisi_pro"):
-            with st.spinner("Analisi spettrogramma frequenze in corso..."):
-                st.success("Analisi completata con successo!")
+        if st.button("🔍 Avvia Analisi Spettrale (FFT & DSP)", key="btn_avvia_analisi_pro"):
+            with st.spinner("Elaborazione Trasformata di Fourier (FFT) e densità spettrale in corso..."):
+                # Eseguiamo l'analisi reale basata sul buffer audio e sulla FFT
+                report_ia = analizza_audio_motore(audio_data['bytes'])
                 
-                st.markdown("### 📊 Report Diagnostico IA")
+                st.success("Analisi spettrale completata con successo!")
+                st.markdown("### 📊 Report Diagnostico IA Avanzato")
                 
-                st.markdown("""
-                <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #00E5FF; margin-bottom: 15px;">
-                    <h4 style="color: #00E5FF; margin-top: 0;">🚗 Riconoscimento Modello Veicolo (Audio Fingerprint)</h4>
-                    <p style="margin: 4px 0;"><b>Modello Identificato:</b> Autovettura / SUV Standard (Analisi Spettrale)</p>
-                    <p style="margin: 4px 0;"><b>Architettura Motore:</b> Termico 4 Cilindri In Linea</p>
-                    <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza:</b> 98.4%</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("""
-                <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FFA657; margin-bottom: 15px;">
-                    <h4 style="color: #FFA657; margin-top: 0;">🔧 Diagnosi Anomalia Meccanica</h4>
-                    <p style="margin: 4px 0;"><b>Componente Sospetto:</b> Cuscinetto tendicinghia / Cinghia servizi</p>
-                    <p style="margin: 4px 0;"><b>Tipologia Anomalia:</b> Usura meccanica avanzata / Sibilo ad alta frequenza</p>
-                    <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza Guasto:</b> 99.1%</p>
-                </div>
-                """, unsafe_allow_html=True)
+                if not report_ia["valido"]:
+                    # Avviso nel caso in cui il segnale sia troppo debole o assente
+                    st.markdown(f"""
+                    <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FF5555; margin-bottom: 15px;">
+                        <h4 style="color: #FF5555; margin-top: 0;">⚠️ Avviso Campione Acustico</h4>
+                        <p style="margin: 4px 0;"><b>Stato Rilevamento:</b> {report_ia['tipo_rilevato']}</p>
+                        <p style="margin: 4px 0;"><b>Diagnostica Preliminare:</b> {report_ia['anomalia']}</p>
+                        <p style="margin: 4px 0; color: #FFA657;"><b>Suggerimento:</b> Avvicina lo smartphone al motore acceso per registrare un segnale idoneo all'analisi FFT.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    # Report valido con dati spettrali reali
+                    st.markdown(f"""
+                    <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #00E5FF; margin-bottom: 15px;">
+                        <h4 style="color: #00E5FF; margin-top: 0;">🚗 Profilo Veicolo & Spettro (Audio Fingerprint)</h4>
+                        <p style="margin: 4px 0;"><b>Riscontro:</b> {report_ia['tipo_rilevato']}</p>
+                        <p style="margin: 4px 0;"><b>Architettura Motore:</b> {report_ia['motore']}</p>
+                        <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza:</b> {report_ia['confidenza_veicolo']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown(f"""
+                    <div style="background-color: #161B22; padding: 20px; border-radius: 12px; border: 1px solid #FFA657; margin-bottom: 15px;">
+                        <h4 style="color: #FFA657; margin-top: 0;">🔧 Diagnosi Meccanica (Bande di Frequenza)</h4>
+                        <p style="margin: 4px 0;"><b>Anomalia Rilevata:</b> {report_ia['anomalia']}</p>
+                        <p style="margin: 4px 0; color: #3FB950;"><b>Indice di Confidenza Guasto:</b> {report_ia['confidenza_guasto']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style="background-color: #161B22; padding: 15px; border-radius: 10px; border: 1px solid #30363D; text-align: center; color: #8B949E;">
@@ -98,6 +103,7 @@ if menu == "Diagnostica Acustica & Riconoscimento AI":
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
     
+    # --- DECODER UNIVERSALE STANDARD ACI / MOTORIZZAZIONE CON GESTIONE STATO ---
     targa_grezza = st.text_input("Inserisci Targa o Telaio (Qualsiasi Veicolo)", "FL655GS", key="input_targa_veicolo")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
     
