@@ -2,3 +2,4 @@ streamlit
 pandas
 streamlit-mic-recorder
 numpy
+requests
