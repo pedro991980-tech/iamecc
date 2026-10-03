@@ -13,19 +13,7 @@ def interroga_portale_motorizzazione(targa):
             "messaggio": "Formato targa non valido o campo vuoto."
         }
         
-    endpoint_api_ministeriale = f"https://api.motorizzazione-civile.it/v1/veicoli/verifica?targa={targa}"
-    
-    headers = {
-        "User-Agent": "IAmecc-Automotive-Suite/2.6",
-        "Accept": "application/json",
-        "X-Authorization-Client": "OFFICINA_AUTORIZZATA_API_KEY"
-    }
-    
     try:
-        # In un ambiente di produzione reale, qui avviene la richiesta HTTPS al servizio ufficiale.
-        # Per ora gestiamo la risposta strutturata del gateway:
-        # response = requests.get(endpoint_api_ministeriale, headers=headers, timeout=5)
-        
         # Simulazione di risposta strutturata dal Portale dell'Automobilista
         return {
             "success": True,
@@ -38,16 +26,13 @@ def interroga_portale_motorizzazione(targa):
             "vin": f"ZAR{targa}MOT2026REG"
         }
         
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return {
             "success": False,
-            "messaggio": f"Connessione al portale ufficiale fallita: str(e)"
+            "messaggio": f"Connessione al portale ufficiale fallita: {str(e)}"
         }
 
 def analizza_audio_motore(audio_bytes):
-    """
-    Pipeline tecnica avanzata di analisi acustica (DSP & FFT) sul buffer del microfono.
-    """
     try:
         audio_buffer = io.BytesIO(audio_bytes)
         audio_array = np.frombuffer(audio_buffer.getvalue(), dtype=np.int16)
