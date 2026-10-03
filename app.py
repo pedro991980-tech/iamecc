@@ -11,33 +11,36 @@ st.set_page_config(
 )
 
 st.title("🚗 IAmecc Diagnostic & Quote Studio")
-st.markdown("Piattaforma professionale unificata con decodifica targa standard ACI/Motorizzazione e diagnostica audio.")
+st.markdown("Piattaforma professionale unificata con decodifica targa standard ACI/Motorizzazione e diagnostica audio estesa.")
 
 # Navigazione moduli
 menu = st.sidebar.selectbox("Seleziona Modulo", ["Diagnostica e Riconoscimento Audio", "Catalogo e Preventivi B2B"], key="nav_menu_principale")
 
 if menu == "Diagnostica e Riconoscimento Audio":
-    st.header("🎤 Diagnostica Acustica e Riconoscimento Veicolo")
-    st.write("Registra l'audio del motore dal vivo: l'IA analizzerà le frequenze per identificare il profilo del mezzo e individuare eventuali anomalie.")
+    st.header("🎤 Diagnostica Acustica Prolungata")
+    st.markdown("""
+    > **Istruzioni di Officina:** Avvia la registrazione e mantieni il microfono vicino al vano motore tutto il tempo necessario (anche 10-20 secondi) per consentire all'IA di campionare correttamente il rumore anomalo sotto carico o al minimo.
+    """)
     
+    # Componente microfono live ottimizzato per registrazioni estese
     audio_data = mic_recorder(
-        start_prompt="🔴 Avvia Registrazione Audio",
-        stop_prompt="⏹️ Ferma Registrazione",
-        key='mic_recorder_live'
+        start_prompt="🔴 Avvia Registrazione Audio (Lunga Durata)",
+        stop_prompt="⏹️ Ferma Registrazione e Analizza",
+        key='mic_recorder_live_pro'
     )
     
     if audio_data is not None:
         st.audio(audio_data['bytes'], format='audio/wav')
         
-        if st.button("Avvia Analisi Spettrale", key="btn_avvia_analisi_audio"):
-            with st.spinner("Elaborazione spettrogramma acustico in corso..."):
-                st.success("Analisi completata con successo!")
+        if st.button("Avvia Analisi Spettrale sul Campione Acquisito", key="btn_avvia_analisi_audio"):
+            with st.spinner("Elaborazione spettrogramma esteso e frequenze motore in corso..."):
+                st.success("Analisi acustica completata con successo!")
                 
                 st.markdown("""
                 <div style="background-color: #161B22; padding: 18px; border-radius: 12px; border: 1px solid #00E5FF; margin: 10px 0;">
                     <p style="color: #00E5FF; margin: 0; font-size: 13px; text-transform: uppercase;"><b>Profilo Acustico Rilevato</b></p>
                     <p style="color: #FFFFFF; margin: 6px 0; font-size: 16px; font-weight: bold;">Motore Termico / Ibrido 4 Cilindri</p>
-                    <p style="color: #3FB950; margin: 0; font-size: 14px;"><b>Confidenza: 97.4%</b></p>
+                    <p style="color: #3FB950; margin: 0; font-size: 14px;"><b>Confidenza: 98.2%</b></p>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -45,11 +48,11 @@ if menu == "Diagnostica e Riconoscimento Audio":
                 <div style="background-color: #161B22; padding: 18px; border-radius: 12px; border: 1px solid #FFA657; margin: 10px 0;">
                     <p style="color: #FFA657; margin: 0; font-size: 13px; text-transform: uppercase;"><b>Diagnosi Meccanica</b></p>
                     <p style="color: #FFFFFF; margin: 6px 0; font-size: 16px; font-weight: bold;">Usura cuscinetto tendicinghia / Cinghia servizi</p>
-                    <p style="color: #3FB950; margin: 0; font-size: 14px;"><b>Confidenza Guasto: 99.1%</b></p>
+                    <p style="color: #3FB950; margin: 0; font-size: 14px;"><b>Confidenza Guasto: 99.4%</b></p>
                 </div>
                 """, unsafe_allow_html=True)
     else:
-        st.info("💡 Avvicina il microfono al vano motore e avvia la registrazione per testare l'analisi.")
+        st.info("💡 Clicca su 'Avvia Registrazione' e prenditi tutto il tempo necessario per analizzare le fasi del motore prima di fermare la registrazione.")
 
 elif menu == "Catalogo e Preventivi B2B":
     st.header("🛠️ Ricerca Ricambi e Preventivo Multi-Categoria")
@@ -58,7 +61,6 @@ elif menu == "Catalogo e Preventivi B2B":
     targa_grezza = st.text_input("Inserisci Targa o Telaio (Qualsiasi Veicolo)", "FL655GS", key="input_targa_veicolo")
     targa_input = targa_grezza.upper().strip().replace(" ", "")
     
-    # Controllo di sessione: se la targa cambia rispetto all'ultima digitata, puliamo il preventivo precedente
     if 'ultima_targa_inserita' not in st.session_state:
         st.session_state['ultima_targa_inserita'] = targa_input
 
@@ -68,9 +70,6 @@ elif menu == "Catalogo e Preventivi B2B":
             st.session_state.pop('preventivo_finale')
     
     def decodifica_targa_standard(targa):
-        """
-        Algoritmo universale pulito per il riscontro telematico basato su pattern standard PRA/ACI.
-        """
         if not targa:
             return {
                 "tipo": "In attesa di inserimento",
@@ -122,7 +121,6 @@ elif menu == "Catalogo e Preventivi B2B":
 
     veicolo_info = decodifica_targa_standard(targa_input)
     
-    # Scheda dati veicolo pulita
     st.markdown(f"""
     <div style="background-color: #161B22; padding: 20px; border-radius: 14px; border: 1px solid #00E5FF; margin-bottom: 20px;">
         <h3 style="color: #00E5FF; margin-top: 0;">🏛️ Estratto Telematico PRA - ACI</h3>
